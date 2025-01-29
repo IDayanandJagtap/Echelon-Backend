@@ -1,4 +1,4 @@
-import mangoose , {schema} from "mongoose";
+import mongoose , {schema} from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
@@ -10,6 +10,7 @@ const daySchema = new Schema(
             lowercase: true,
             trim: true,
         },
+
         date: {
             type: Date,
             default: Date.now,
