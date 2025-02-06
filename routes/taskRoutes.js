@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { createTask, getTasks } = require('../controllers/taskController');
+const { createTask, getTask, updateTask, getDay } = require('../controllers/taskController');
 
-// Create a task
-router.post('/', createTask);
-
-// Get the first 10 tasks
-router.get('/', getTasks);
+router.post('/', createTask); // Create task
+router.get('/task', getTask); // Get task by date
+router.put('/task', updateTask); // Update task by date
+router.get('/day', getDay); // Get tasks for a day
 
 module.exports = router;
