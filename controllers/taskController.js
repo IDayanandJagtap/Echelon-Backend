@@ -1,14 +1,12 @@
 const Task = require('../models/schema/task.model.js');
 
-// Dummy userId for testing
-const dummyUserId = '12345';
-
 // Create a new task
 const createTask = async (req, res) => {
   try {
     const taskData = {
       ...req.body,
-      userId: dummyUserId, // Set the dummy userId
+      userId: req.body.userId || '12345', // Use dynamic or fallback dummy userId
+      taskDate: req.body.taskDate, // Ensure taskDate is in 'YYYY-MM-DD' format
     };
     const task = new Task(taskData);
     await task.save();
@@ -19,10 +17,20 @@ const createTask = async (req, res) => {
 };
 
 // Get tasks by userId and taskDate
-const getTask = async (req, res) => {
+const getTaskByDateAndUserId = async (req, res) => {
   try {
-    const { date } = req.query;
-    const task = await Task.findOne({ taskDate: new Date(date), userId: dummyUserId });
+    const { date, userId } = req.query;
+
+    if (!date || !userId) {
+      return res.status(400).json({ success: false, message: 'Date and userId are required' });
+    }
+
+    const task = await Task.findOne({ taskDate: date, userId });
+
+    if (!task) {
+      return res.status(404).json({ success: false, task: null, message: 'No task found' });
+    }
+
     res.status(200).json({ success: true, task });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -32,12 +40,22 @@ const getTask = async (req, res) => {
 // Update task by date
 const updateTask = async (req, res) => {
   try {
-    const { date } = req.query;
+    const { date, userId } = req.query;
+
+    if (!date || !userId) {
+      return res.status(400).json({ success: false, message: 'Date and userId are required' });
+    }
+
     const updatedTask = await Task.findOneAndUpdate(
-      { taskDate: new Date(date), userId: dummyUserId },
+      { taskDate: date, userId },
       req.body,
       { new: true }
     );
+
+    if (!updatedTask) {
+      return res.status(404).json({ success: false, message: 'No task found to update' });
+    }
+
     res.status(200).json({ success: true, task: updatedTask });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -47,12 +65,22 @@ const updateTask = async (req, res) => {
 // Get all tasks for a specific day
 const getDay = async (req, res) => {
   try {
-    const { date } = req.query;
-    const tasks = await Task.find({ taskDate: new Date(date), userId: dummyUserId });
+    const { date, userId } = req.query;
+
+    if (!date || !userId) {
+      return res.status(400).json({ success: false, message: 'Date and userId are required' });
+    }
+
+    const tasks = await Task.find({ taskDate: date, userId });
+
+    if (!tasks.length) {
+      return res.status(404).json({ success: false, tasks: [], message: 'No tasks found' });
+    }
+
     res.status(200).json({ success: true, tasks });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 };
 
-module.exports = { createTask, getTask, updateTask, getDay };
+module.exports = { createTask, getTaskByDateAndUserId, updateTask, getDay };
