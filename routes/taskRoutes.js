@@ -1,10 +1,18 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { createTask, getTaskByDateAndUserId, updateTask, getDay } = require('../controllers/taskController');
+const {
+  createTask,
+  getTaskByDateAndUserId,
+  updateTask,
+  getDay,
+  getProductivityStatusByRange,
+} = require("../controllers/taskController");
 
-router.post('/', createTask); // Create task
-router.get('/task', getTaskByDateAndUserId); // Get task by date
-router.put('/update-task', updateTask); // Update task by date
-router.get('/day', getDay); // Get tasks for a day
+router.post("/", createTask);
+router.get("/task", getTaskByDateAndUserId);
+router.put("/update-task", updateTask);
+router.get("/day", getDay);
+router.get("/status/productivity/by-range", getProductivityStatusByRange);
 
 module.exports = router;
+

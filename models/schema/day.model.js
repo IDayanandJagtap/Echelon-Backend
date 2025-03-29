@@ -1,51 +1,35 @@
-import mongoose, { schema } from "mongoose";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+const mongoose = require("mongoose");
 
-const daySchema = new Schema(
-  {
-    // day: {
-    //     type: String,
-    //     required: true,
-    //     lowercase: true,
-    //     trim: true,
-    // },
-
-    date: {
-      type: Date,
-      default: Date.now,
-    },
-
-    statusOfDay: {
-      type: String,
-      required: true,
-      lowercase: true,
-      trim: true,
-    },
-
-    comment: {
-      type: String,
-      lowercase: true,
-      trim: true,
-    },
-
-    streak: {
-      type: Number,
-      default: 0,
-    },
-
-    createdBy: {
-      type: Date,
-      default: Date.now,
-    },
-
-    updatedBy: {
-      type: Date,
-      default: Date.now,
-    },
+const daySchema = new mongoose.Schema({
+  date: {
+    type: Date,
+    required: true,
+    unique: true,
   },
+  statusOfDay: {
+    type: String,
+    required: true,
+    lowercase: true,
+    trim: true,
+    enum: ["productive", "not productive"],
+  },
+  comment: {
+    type: String,
+    lowercase: true,
+    trim: true,
+  },
+  streak: {
+    type: Number,
+    default: 0,
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  updatedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+}, { timestamps: true });
 
-  {
-    timestamps: true,
-  }
-);
+module.exports = mongoose.model("Day", daySchema);
