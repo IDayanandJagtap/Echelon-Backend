@@ -2,14 +2,14 @@ const Task = require("../models/schema/task.model.js");
 
 // Helper function to parse date (ensures UTC start of the day)
 const parseDate = (dateStr) => {
-  const [year, month, day] = dateStr.split("-").map(Number);
+  const [year, month, day] = dateStr.split('-').map(Number);
   return new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
 };
 
 // Helper function to format date as "DD-MM-YYYY"
 const formatDate = (date) => {
-  const day = String(date.getUTCDate()).padStart(2, "0");
-  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, '0');
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
   const year = date.getUTCFullYear();
   return `${day}-${month}-${year}`;
 };
@@ -21,12 +21,7 @@ const getProductivityStatusByRange = async (req, res) => {
     console.log("Received Query Params:", { startDate, endDate, userId });
 
     if (!startDate || !endDate || !userId) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "startDate, endDate, and userId are required",
-        });
+      return res.status(400).json({ success: false, message: "startDate, endDate, and userId are required" });
     }
 
     const start = parseDate(startDate);
@@ -36,31 +31,21 @@ const getProductivityStatusByRange = async (req, res) => {
     console.log("Parsed Dates:", { start, end, today });
 
     // Fetch tasks within the date range for the user
-    const tasks = await Task.find({
-      taskDate: { $gte: start, $lte: end },
-      userId,
-    });
+    const tasks = await Task.find({ taskDate: { $gte: start, $lte: end }, userId });
     console.log("Fetched Tasks:", tasks);
 
     // Map dates to status
     const taskStatusMap = new Map();
-    tasks.forEach((task) =>
-      taskStatusMap.set(formatDate(task.taskDate), task.status)
-    );
+    tasks.forEach(task => taskStatusMap.set(formatDate(task.taskDate), task.status));
 
     let dateCursor = new Date(start);
     const result = [];
 
     while (dateCursor <= end) {
       const dateStr = formatDate(dateCursor);
-      const dayName = dateCursor.toLocaleDateString("en-US", {
-        weekday: "long",
-      });
+      const dayName = dateCursor.toLocaleDateString('en-US', { weekday: 'long' });
 
-      const status =
-        dateCursor > today
-          ? null
-          : taskStatusMap.get(dateStr) || "Not Productive";
+      const status = dateCursor > today ? null : taskStatusMap.get(dateStr) || "Not Productive";
       result.push({ date: dateStr, day: dayName, status });
 
       dateCursor.setUTCDate(dateCursor.getUTCDate() + 1);
@@ -80,9 +65,7 @@ const createTask = async (req, res) => {
     const { userId, taskDate } = req.body;
     console.log("Received Body:", req.body);
     if (!userId || !taskDate) {
-      return res
-        .status(400)
-        .json({ success: false, message: "userId and taskDate are required" });
+      return res.status(400).json({ success: false, message: "userId and taskDate are required" });
     }
 
     const taskData = { ...req.body, taskDate: parseDate(taskDate) };
@@ -103,17 +86,13 @@ const getTaskByDateAndUserId = async (req, res) => {
     const { date, userId } = req.query;
     console.log("Received Query Params:", { date, userId });
     if (!date || !userId) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Date and userId are required" });
+      return res.status(400).json({ success: false, message: "Date and userId are required" });
     }
 
     const task = await Task.findOne({ taskDate: parseDate(date), userId });
     console.log("Fetched Task:", task);
     if (!task) {
-      return res
-        .status(404)
-        .json({ success: false, task: null, message: "No task found" });
+      return res.status(404).json({ success: false, task: null, message: "No task found" });
     }
 
     res.status(200).json({ success: true, result: task });
@@ -127,15 +106,9 @@ const getTaskByDateAndUserId = async (req, res) => {
 const updateTask = async (req, res) => {
   try {
     const { date, userId } = req.query;
-    console.log("Received Query Params for Update:", {
-      date,
-      userId,
-      updateData: req.body,
-    });
+    console.log("Received Query Params for Update:", { date, userId, updateData: req.body });
     if (!date || !userId) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Date and userId are required" });
+      return res.status(400).json({ success: false, message: "Date and userId are required" });
     }
 
     const updatedTask = await Task.findOneAndUpdate(
@@ -145,9 +118,7 @@ const updateTask = async (req, res) => {
     );
     console.log("Updated Task:", updatedTask);
     if (!updatedTask) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No task found to update" });
+      return res.status(404).json({ success: false, message: "No task found to update" });
     }
 
     res.status(200).json({ success: true, result: updatedTask });
@@ -163,9 +134,7 @@ const getDay = async (req, res) => {
     const { date, userId } = req.query;
     console.log("Received Query Params for GetDay:", { date, userId });
     if (!date || !userId) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Date and userId are required" });
+      return res.status(400).json({ success: false, message: "Date and userId are required" });
     }
 
     const tasks = await Task.find({ taskDate: parseDate(date), userId });
@@ -177,10 +146,11 @@ const getDay = async (req, res) => {
   }
 };
 
-module.exports = {
-  getProductivityStatusByRange,
-  createTask,
-  getTaskByDateAndUserId,
-  updateTask,
-  getDay,
+module.exports = { 
+  getProductivityStatusByRange, 
+  createTask, 
+  getTaskByDateAndUserId, 
+  updateTask, 
+  getDay 
 };
+

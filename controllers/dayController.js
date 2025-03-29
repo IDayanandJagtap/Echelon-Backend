@@ -1,37 +1,36 @@
 const Day = require("../models/schema/day.model.js");
 
-const markProductivity = async (req, res) => {
+const createOrUpdateDay = async (req, res) => {
   try {
-    const { userId, date, statusOfDay, comment } = req.body;
+    const { date, userId, statusOfDay } = req.body;
 
-    if (!userId || !date || !statusOfDay) {
-      return res.status(400).json({ success: false, message: "Missing required fields" });
-    }
-
-    let dayEntry = await Day.findOne({ date });
-
-    if (dayEntry) {
-      // Update existing entry
-      dayEntry.statusOfDay = statusOfDay;
-      dayEntry.comment = comment;
-      dayEntry.updatedBy = userId;
-      await dayEntry.save();
-    } else {
-      // Create new entry
-      dayEntry = new Day({
-        date,
-        statusOfDay,
-        comment,
-        createdBy: userId,
-        updatedBy: userId,
+    if (!date || !userId || !statusOfDay) {
+      return res.status(400).json({
+        success: false,
+        message: "date, userId, and statusOfDay are required",
       });
-      await dayEntry.save();
     }
 
-    res.status(201).json({ success: true, message: "Productivity status marked successfully", data: dayEntry });
+    const parsedDate = new Date(date);
+
+    // Check if the day already exists
+    const existingDay = await Day.findOne({ date: parsedDate, userId });
+
+    if (existingDay) {
+      // Update the existing day
+      existingDay.statusOfDay = statusOfDay;
+      await existingDay.save();
+      return res.status(200).json({ success: true, result: existingDay });
+    }
+
+    // Create a new day
+    const newDay = new Day({ date: parsedDate, userId, statusOfDay });
+    await newDay.save();
+    res.status(201).json({ success: true, result: newDay });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Error creating/updating day:", error.message);
+    res.status(500).json({ success: false, error: error.message });
   }
 };
 
-module.exports = { markProductivity };
+module.exports = { createOrUpdateDay };

@@ -1,14 +1,14 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
-const Task = require('./models/schema/task.model.js');
+require("dotenv").config();
+const mongoose = require("mongoose");
+const Task = require("./models/schema/task.model.js");
 
 // MongoDB Connection
 const connectDB = async () => {
   try {
     await mongoose.connect(`${process.env.MONGODB_URI}/${process.env.DB_NAME}`);
-    console.log('Connected to MongoDB');
+    console.log("Connected to MongoDB");
   } catch (error) {
-    console.error('MongoDB connection failed:', error);
+    console.error("MongoDB connection failed:", error);
     process.exit(1);
   }
 };
@@ -17,16 +17,44 @@ const connectDB = async () => {
 const seedTasks = async () => {
   try {
     // Dummy user IDs
-    const userIds = ['user1', 'user2', 'user3', 'user4', 'user5', 'user6', 'user7', 'user8', 'user9', 'user10'];
+    const userIds = [
+      "user1",
+      "user2",
+      "user3",
+      "user4",
+      "user5",
+      "user6",
+      "user7",
+      "user8",
+      "user9",
+      "user10",
+    ];
 
     // Task Titles and Descriptions
-    const taskTitles = ['Learn React', 'Study Node.js', 'Build API', 'Write Docs', 'Test Features',
-      'Fix Bugs', 'Deploy App', 'Research AI', 'Plan Roadmap', 'Design UI'];
+    const taskTitles = [
+      "Learn React",
+      "Study Node.js",
+      "Build API",
+      "Write Docs",
+      "Test Features",
+      "Fix Bugs",
+      "Deploy App",
+      "Research AI",
+      "Plan Roadmap",
+      "Design UI",
+    ];
 
     const taskDescriptions = [
-      'Complete module 1', 'Understand basics of Express', 'Create RESTful APIs',
-      'Document features', 'Write test cases', 'Resolve issues', 'Deploy to production',
-      'Explore AI trends', 'Draft feature list', 'Design wireframes'
+      "Complete module 1",
+      "Understand basics of Express",
+      "Create RESTful APIs",
+      "Document features",
+      "Write test cases",
+      "Resolve issues",
+      "Deploy to production",
+      "Explore AI trends",
+      "Draft feature list",
+      "Design wireframes",
     ];
 
     // Current Date for Task Assignment
@@ -49,9 +77,9 @@ const seedTasks = async () => {
 
     // Insert Tasks into MongoDB
     await Task.insertMany(tasks);
-    console.log('Dummy tasks added successfully!');
+    console.log("Dummy tasks added successfully!");
   } catch (error) {
-    console.error('Error seeding tasks:', error);
+    console.error("Error seeding tasks:", error);
   } finally {
     mongoose.connection.close();
   }
@@ -64,4 +92,3 @@ const runSeeding = async () => {
 };
 
 runSeeding();
-

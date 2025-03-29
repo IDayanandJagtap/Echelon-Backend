@@ -1,7 +1,8 @@
 const express = require("express");
-const router = express.Router();
-const { markProductivity } = require("../controllers/dayController");
+const { createOrUpdateDay } = require("../controllers/dayController.js");
 
-router.post("/mark", markProductivity);  // Ensure this is correct
+const router = express.Router();
+
+router.post("/day", createOrUpdateDay); // Route to create or update a day
 
 module.exports = router;
