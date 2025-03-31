@@ -1,17 +1,17 @@
 const fs = require('fs');
 const path = require('path');
 
-// Load quotes from the JSON file
+// Load quotes from the JSON file during server startup
 const quotesPath = path.join(__dirname, '..', 'static', 'quotes.json');
 let quotes = {};
 
-fs.readFile(quotesPath, 'utf8', (err, data) => {
-    if (err) {
-        console.error('Error reading quotes.json:', err);
-        return;
-    }
+try {
+    const data = fs.readFileSync(quotesPath, 'utf8'); // Use synchronous file reading during startup
     quotes = JSON.parse(data);
-});
+} catch (err) {
+    console.error('Error reading or parsing quotes.json:', err.message);
+    quotes = {}; // Ensure quotes is an empty object if there's an error
+}
 
 // Function to get a random quote
 const getRandomQuote = (req, res) => {

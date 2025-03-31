@@ -2,17 +2,17 @@ const express = require("express");
 const router = express.Router();
 const {
   createTask,
-  getTaskByDateAndUserId,
+  getTasks,
   updateTask,
-  getDay,
-  getProductivityStatusByRange,
 } = require("../controllers/taskController");
 
-router.post("/", createTask);
-router.get("/task", getTaskByDateAndUserId);
-router.put("/update-task", updateTask);
-router.get("/day", getDay);
-router.get("/status/productivity/by-range", getProductivityStatusByRange);
+// [GET] /api/tasks?date=""&day=""&statusOfDay=""&userId=""
+router.get("/", getTasks); // Fetch tasks based on query parameters
+
+// [POST] /api/tasks/create -> body (userId, taskDetails)
+router.post("/create", createTask); // Create a new task
+
+// [PUT] /api/tasks/update
+router.put("/update", updateTask); // Update an existing task
 
 module.exports = router;
-

@@ -5,15 +5,23 @@ const daySchema = new mongoose.Schema(
     date: {
       type: Date,
       required: true,
-      unique: true,
+    },
+    userId: {
+      type: String,
+      required: true,
     },
     statusOfDay: {
       type: String,
-      required: true,
       lowercase: true,
       trim: true,
       enum: ["productive", "not productive"],
     },
+    tasks: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Task",
+      },
+    ],
     comment: {
       type: String,
       lowercase: true,
@@ -23,16 +31,11 @@ const daySchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
-    updatedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    },
   },
   { timestamps: true }
 );
+
+// Add a compound unique index for date and userId
+daySchema.index({ date: 1, userId: 1 }, { unique: true });
 
 module.exports = mongoose.models.Day || mongoose.model("Day", daySchema);
