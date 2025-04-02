@@ -5,8 +5,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "moment": "^2.30.1",
-    "mongoose": "^8.9.5",
-    "type": "module"
+    "mongoose": "^8.9.5"
+   
     
   },
   "name": "server",
