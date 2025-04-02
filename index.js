@@ -1,5 +1,6 @@
 require("dotenv").config();
 const express = require("express");
+const cors = require("cors")
 const connectDB = require("./db/index.js");
 const taskRoutes = require("./routes/taskRoutes.js");
 const dayRoutes = require("./routes/dayRoutes.js");
@@ -9,6 +10,10 @@ const app = express();
 const PORT = process.env.PORT || 8000;
 
 app.use(express.json());
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
+}))
 connectDB();
 
 // Register routes
@@ -21,5 +26,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log("Server running on port ${PORT}");
 });
