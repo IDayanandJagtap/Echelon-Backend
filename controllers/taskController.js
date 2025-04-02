@@ -6,12 +6,17 @@ const getTasks = async (req, res) => {
   try {
     const { date, userId } = req.query;
 
-    const query = {};
-    if (date) query.taskDate = new Date(new Date(date).toISOString().split("T")[0]); // Strip time from date
-    if (userId) query.userId = userId;
+    // Ensure both userId and date are provided
+    if (!userId || !date) {
+      return res.status(400).json({ success: false, message: "userId and date are required" });
+    }
 
-    // Fetch tasks based on the query
-    const tasks = await Task.find(query);
+    // Strip time from the date
+    const strippedDate = new Date(new Date(date).toISOString().split("T")[0]);
+
+    // Query tasks based on userId and taskDate
+    const tasks = await Task.find({ userId, taskDate: strippedDate });
+
     res.status(200).json({ success: true, result: tasks });
   } catch (error) {
     console.error("Error fetching tasks:", error.message);
