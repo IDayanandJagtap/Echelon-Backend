@@ -8,8 +8,11 @@ const getDay = async (req, res) => {
       return res.status(400).json({ success: false, message: "date and userId are required" });
     }
 
+    // Strip time from the date
+    const strippedDate = new Date(new Date(date).toISOString().split("T")[0]);
+
     // Find the day and populate the tasks
-    const day = await Day.findOne({ date: new Date(date), userId }).populate("tasks");
+    const day = await Day.findOne({ date: strippedDate, userId }).populate("tasks");
 
     if (!day) {
       return res.status(404).json({ success: false, message: "Day not found" });
@@ -32,8 +35,11 @@ const updateDayStatus = async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
+    // Strip time from the date
+    const strippedDate = new Date(new Date(date).toISOString().split("T")[0]);
+
     const updatedDay = await Day.findOneAndUpdate(
-      { date: new Date(date), userId },
+      { date: strippedDate, userId },
       { $set: { statusOfDay } },
       { new: true }
     );
@@ -79,14 +85,21 @@ const getLineChartProductivityStatus = async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
+    // Strip time from the start and end dates
+    const strippedStartDate = new Date(new Date(startDate).toISOString().split("T")[0]);
+    const strippedEndDate = new Date(new Date(endDate).toISOString().split("T")[0]);
+
     const data = await Day.find({
       userId,
-      date: { $gte: new Date(startDate), $lte: new Date(endDate) },
+      date: { $gte: strippedStartDate, $lte: strippedEndDate },
     });
 
     const result = data.map((day) => ({
-      date: day.date,
-      statusOfDay: day.statusOfDay,
+      date: day.date.toISOString().split("T")[0], // Format date as YYYY-MM-DD
+      day: new Date(day.date).toLocaleString("en-US", { weekday: "long" }), // Get the day of the week
+      status: day.statusOfDay
+        ? day.statusOfDay.charAt(0).toUpperCase() + day.statusOfDay.slice(1) // Capitalize the status
+        : "Unknown", // Default value if statusOfDay is undefined
     }));
 
     res.status(200).json({ success: true, result });
@@ -105,10 +118,14 @@ const getPieChartProductivityStatus = async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
+    // Strip time from the start and end dates
+    const strippedStartDate = new Date(new Date(startDate).toISOString().split("T")[0]);
+    const strippedEndDate = new Date(new Date(endDate).toISOString().split("T")[0]);
+
     // Query the Day model for the specified date range, userId, and statusOfDay
     const data = await Day.find({
       userId,
-      date: { $gte: new Date(startDate), $lte: new Date(endDate) },
+      date: { $gte: strippedStartDate, $lte: strippedEndDate },
       statusOfDay,
     });
 
@@ -125,7 +142,6 @@ const getPieChartProductivityStatus = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
-
 
 module.exports = {
   getDay,

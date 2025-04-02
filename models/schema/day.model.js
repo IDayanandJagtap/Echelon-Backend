@@ -32,8 +32,25 @@ const daySchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true, // Enable createdAt and updatedAt fields
+    toJSON: {
+      transform: (doc, ret) => {
+        // Format date, createdAt, and updatedAt to YYYY-MM-DD
+        ret.date = ret.date.toISOString().split("T")[0];
+        ret.createdAt = ret.createdAt.toISOString().split("T")[0];
+        ret.updatedAt = ret.updatedAt.toISOString().split("T")[0];
+        return ret;
+      },
+    },
+  }
 );
+
+// Pre-save middleware to store only the date (strip time)
+daySchema.pre("save", function (next) {
+  this.date = new Date(this.date.toISOString().split("T")[0]); // Keep only the date part
+  next();
+});
 
 // Add a compound unique index for date and userId
 daySchema.index({ date: 1, userId: 1 }, { unique: true });

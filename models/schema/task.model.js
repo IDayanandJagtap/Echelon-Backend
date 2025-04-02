@@ -1,17 +1,52 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const taskSchema = new mongoose.Schema(
   {
-    userId: { type: String, required: true }, // Add userId to link tasks with users
-    title: { type: String, required: true, trim: true },
-    description: { type: String, required: true, trim: true },
-    status: { type: String, default: 'pending', trim: true },
-    category: { type: String, default: 'general', trim: true },
-    taskDate: { type: Date, required: true }, // Add taskDate to track dates
+    userId: {
+      type: String,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    description: {
+      type: String,
+      trim: true,
+    },
+    status: {
+      type: String,
+      enum: ["pending", "completed"],
+      default: "pending",
+    },
+    category: {
+      type: String,
+      trim: true,
+    },
+    taskDate: {
+      type: Date,
+      required: true,
+    },
   },
   {
-    timestamps: true,
+    timestamps: true, // Enable createdAt and updatedAt fields
+    toJSON: {
+      transform: (doc, ret) => {
+        // Format taskDate, createdAt, and updatedAt to YYYY-MM-DD
+        ret.taskDate = ret.taskDate.toISOString().split("T")[0];
+        ret.createdAt = ret.createdAt.toISOString().split("T")[0];
+        ret.updatedAt = ret.updatedAt.toISOString().split("T")[0];
+        return ret;
+      },
+    },
   }
 );
 
-module.exports = mongoose.model('Task', taskSchema);
+// Pre-save middleware to store only the date (strip time) for taskDate
+taskSchema.pre("save", function (next) {
+  this.taskDate = new Date(this.taskDate.toISOString().split("T")[0]); // Keep only the date part
+  next();
+});
+
+module.exports = mongoose.models.Task || mongoose.model("Task", taskSchema);

@@ -4,19 +4,11 @@ const Day = require("../models/schema/day.model.js");
 // [GET] /api/tasks
 const getTasks = async (req, res) => {
   try {
-    const { date, day, statusOfDay, userId } = req.query;
+    const { date, userId } = req.query;
 
     const query = {};
-    if (date) query.taskDate = new Date(date);
+    if (date) query.taskDate = new Date(new Date(date).toISOString().split("T")[0]); // Strip time from date
     if (userId) query.userId = userId;
-
-    // If statusOfDay is provided, fetch it from the Day model
-    if (statusOfDay) {
-      const dayRecord = await Day.findOne({ date: new Date(date), userId });
-      if (!dayRecord || dayRecord.statusOfDay !== statusOfDay) {
-        return res.status(200).json({ success: true, result: [] }); // No tasks if statusOfDay doesn't match
-      }
-    }
 
     // Fetch tasks based on the query
     const tasks = await Task.find(query);
@@ -36,13 +28,16 @@ const createTask = async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
+    // Strip time from the taskDate
+    const strippedTaskDate = new Date(new Date(taskDate).toISOString().split("T")[0]);
+
     // Create the task
-    const task = new Task({ userId, title, description, status, category, taskDate });
+    const task = new Task({ userId, title, description, status, category, taskDate: strippedTaskDate });
     await task.save();
 
     // Add the task to the corresponding day
     const day = await Day.findOneAndUpdate(
-      { date: new Date(taskDate), userId },
+      { date: strippedTaskDate, userId },
       { $addToSet: { tasks: task._id } }, // Add the task ID to the tasks array
       { new: true, upsert: true } // Create the day if it doesn't exist
     );
@@ -64,8 +59,11 @@ const updateTask = async (req, res) => {
       return res.status(400).json({ success: false, message: "userId and taskDate are required" });
     }
 
+    // Strip time from the taskDate
+    const strippedTaskDate = new Date(new Date(taskDate).toISOString().split("T")[0]);
+
     const updatedTask = await Task.findOneAndUpdate(
-      { userId, taskDate: new Date(taskDate) },
+      { userId, taskDate: strippedTaskDate },
       { $set: updateData },
       { new: true }
     );
