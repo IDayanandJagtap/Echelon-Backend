@@ -4,6 +4,7 @@ const {
   createTask,
   getTasks,
   updateTask,
+  deleteTask
 } = require("../controllers/taskController");
 
 // [GET] /api/tasks?date=""&day=""&statusOfDay=""&userId=""
@@ -14,5 +15,7 @@ router.post("/create", createTask); // Create a new task
 
 // [PUT] /api/tasks/update
 router.put("/update", updateTask); // Update an existing task
+
+router.delete("/delete", deleteTask);
 
 module.exports = router;

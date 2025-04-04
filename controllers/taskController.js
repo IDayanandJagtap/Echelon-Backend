@@ -57,21 +57,15 @@ const createTask = async (req, res) => {
 // [PUT] /api/tasks/update
 const updateTask = async (req, res) => {
   try {
-    const { userId, taskDate } = req.query;
+    const { taskId } = req.query; // Accept taskId as a query parameter
     const updateData = req.body;
 
-    if (!userId || !taskDate) {
-      return res.status(400).json({ success: false, message: "userId and taskDate are required" });
+    if (!taskId) {
+      return res.status(400).json({ success: false, message: "taskId is required" });
     }
 
-    // Strip time from the taskDate
-    const strippedTaskDate = new Date(new Date(taskDate).toISOString().split("T")[0]);
-
-    const updatedTask = await Task.findOneAndUpdate(
-      { userId, taskDate: strippedTaskDate },
-      { $set: updateData },
-      { new: true }
-    );
+    // Find and update the task by its unique ID
+    const updatedTask = await Task.findByIdAndUpdate(taskId, { $set: updateData }, { new: true });
 
     if (!updatedTask) {
       return res.status(404).json({ success: false, message: "Task not found" });
@@ -84,4 +78,27 @@ const updateTask = async (req, res) => {
   }
 };
 
-module.exports = { getTasks, createTask, updateTask };
+const deleteTask = async (req, res) => {
+  try {
+    const { taskId } = req.query; // Accept taskId as a query parameter
+
+    if (!taskId) {
+      return res.status(400).json({ success: false, message: "taskId is required" });
+    }
+
+    // Find and delete the task by its unique ID
+    const deletedTask = await Task.findByIdAndDelete(taskId);
+
+    if (!deletedTask) {
+      return res.status(404).json({ success: false, message: "Task not found" });
+    }
+
+    res.status(200).json({ success: true, message: "Task deleted successfully", result: deletedTask });
+  } catch (error) {
+    console.error("Error deleting task:", error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+
+module.exports = { getTasks, createTask, updateTask, deleteTask };
